@@ -1,0 +1,22 @@
+# The impact of Storms and other severe weather events on public health and the economy of the United States
+
+## Synopsis
+
+## Data Processing
+
+Loading the data:
+
+```{r}
+#First find out how many columns are included:
+stormy <- read.csv("repdata-data-StormData.csv", nrows=1)
+head(stormy)
+#classes <- sapply(storms,class)
+#classes
+#We are going to keep "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "CROPDMG"
+
+storms <- read.csv("repdata-data-StormData.csv",colClasses = c(rep("NULL", 7), "factor", rep("NULL",14), rep("numeric",3), "factor", "numeric", "factor", rep("NULL", 9), skip=600000, nrows=1232705))
+head(storms)
+```
+## Results
+
+## Conclusions
