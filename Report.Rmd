@@ -4,19 +4,79 @@
 
 ## Data Processing
 
-Loading the data:
+Loading the data and caching it:
 
-```{r}
-#First find out how many columns are included:
-stormy <- read.csv("repdata-data-StormData.csv", nrows=1)
-head(stormy)
-#classes <- sapply(storms,class)
-#classes
-#We are going to keep "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "CROPDMG"
+```{r cache=TRUE}
+#following needs to be cached
 
-storms <- read.csv("repdata-data-StormData.csv",colClasses = c(rep("NULL", 7), "factor", rep("NULL",14), rep("numeric",3), "factor", "numeric", "factor", rep("NULL", 9), skip=600000, nrows=1232705))
-head(storms)
+classes = c("character", "character", "NULL", "NULL", "NULL", "NULL", "character", "character", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "character", "character", "character", "character", "character", "character", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "numeric")
+
+st <- read.csv("repdata-data-StormData.csv.bz2", header = TRUE, colClasses = classes, nrows=902297,comment.char="")
+
+# I dont think I need the following:
+st$BGN_DATE <- NULL
+
+st$STATE__ <- NULL
+st$STATE <- NULL
 ```
+Processing the data:
+```{r cache=FALSE}
+
+head(st)
+
+summary(st)
+
+st$CROPDMGEXP[st$CROPDMGEXP== ""] <- "0"
+st$PROPDMGEXP[st$PROPDMGEXP==""] <- "0"
+
+st$CROPDMGEXP[st$CROPDMGEXP=="K"] <- "3"
+st$CROPDMGEXP[st$CROPDMGEXP=="k"] <- "3"
+
+st$PROPDMGEXP[st$PROPDMGEXP=="K"] <- "3"
+
+st$CROPDMGEXP[st$CROPDMGEXP=="M"] <- "6"
+st$PROPDMGEXP[st$PROPDMGEXP=="M"] <- "6"
+
+st$CROPDMGEXP[st$CROPDMGEXP=="m"] <- "6"
+st$PROPDMGEXP[st$PROPDMGEXP=="m"] <- "6"
+
+st$CROPDMGEXP[st$CROPDMGEXP=="H"] <- "2"
+st$PROPDMGEXP[st$PROPDMGEXP=="H"] <- "2"
+
+st$CROPDMGEXP[st$CROPDMGEXP=="?"] <- "0"
+
+st$PROPDMGEXP[st$PROPDMGEXP=="h"] <- "2"
+
+st$CROPDMGEXP[st$CROPDMGEXP=="B"] <- "9"
+st$PROPDMGEXP[st$PROPDMGEXP=="B"] <- "9"
+
+st$PROPDMGEXP[st$PROPDMGEXP=="?"] <- "0"
+```
+Deleting the few rows with nonsensical exponent values so as not to use them in the analysis:
+```{r}
+st$REFNUM[st$PROPDMGEXP=="-"]
+rows <- as.integer(st$REFNUM[st$PROPDMGEXP=="-"])
+rows <- c(rows, as.integer(st$REFNUM[st$PROPDMGEXP=="+"]))
+
+summary(st)
+st <- st[-rows,]
+
+st$REFNUM[st$PROPDMGEXP=="-"]
+summary(st)
+st$EVTYPE <- as.factor(st$EVTYPE)
+st$PROPDMGEXP <- as.factor(st$PROPDMGEXP)
+st$CROPDMGEXP <- as.factor(st$CROPDMGEXP)
+
+levels(st$PROPDMGEXP)
+levels(st$CROPDMGEXP)
+
+st[st$PROPDMGEXP == "-",]
+st[st$PROPDMGEXP == "+",]
+
+```
+
+
+
 ## Results
 
 ## Conclusions
