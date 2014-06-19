@@ -2,10 +2,14 @@
 
 ## Synopsis
 
+This report contains a brief digest of the 60-year spanning US weather incidents data base. We present results with regards to two investigations: The most severe events in terms of public health and safety and the most severe events in terms of total economic impact. Tornados, extreme heat and floods turn out to be the deadliest and most dangerous weather events. The events with the largest economic impact are floods, hurricanes and tornados.
+
 ## Data Processing
-
+Loading useful libraries:
+```{r cache=TRUE}
+library("stringr")
+```
 Loading the data and caching it:
-
 ```{r cache=TRUE}
 #following needs to be cached
 
@@ -19,12 +23,166 @@ st$BGN_DATE <- NULL
 st$STATE__ <- NULL
 st$STATE <- NULL
 ```
-Processing the data:
-```{r cache=FALSE}
-
-head(st)
-
-summary(st)
+Fixing some of the events data character strings:
+```{r cache=TRUE}
+st$EVTYPE <- tolower(st$EVTYPE)
+st$EVTYPE <- str_trim(st$EVTYPE)
+st$EVTYPE <- sub("\\\\",".",st$EVTYPE)
+st$EVTYPE <- sub("precipitation","rain",st$EVTYPE)
+st$EVTYPE <- sub("avalance","avalanche",st$EVTYPE)
+st$EVTYPE <- sub("dense fog","fog",st$EVTYPE)
+st$EVTYPE <- sub("freezing fog","fog",st$EVTYPE)
+st$EVTYPE <- sub("heavy surf/high surf","heavy surf",st$EVTYPE)
+#lightning
+st$EVTYPE <- sub("lightning injury","lightning",st$EVTYPE)
+st$EVTYPE <- sub("lightning fire","lightning",st$EVTYPE)
+#heat
+st$EVTYPE <- sub("excessive heat","heat",st$EVTYPE)
+st$EVTYPE <- sub("unseasonably warm","heat",st$EVTYPE)
+st$EVTYPE <- sub("heat wave drought","heat",st$EVTYPE)
+st$EVTYPE <- sub("heat and dry","heat",st$EVTYPE)
+st$EVTYPE <- sub("record heat","heat",st$EVTYPE)
+st$EVTYPE <- sub("extreme heat","heat",st$EVTYPE)
+st$EVTYPE <- sub("heat waves","heat",st$EVTYPE)
+st$EVTYPE <- sub("heat wave","heat",st$EVTYPE)
+st$EVTYPE <- sub("heats","heat",st$EVTYPE)
+#hurricane
+st$EVTYPE <- sub("hurricane edouard","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane erin","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane opal/high winds","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane/typhoon","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane emily","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane opal","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane gordon","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane felix","hurricane",st$EVTYPE)
+st$EVTYPE <- sub("hurricane-generated swells","hurricane",st$EVTYPE)
+#thunderstorm
+st$EVTYPE <- sub("tstm wind (g40)","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("tstm wind (g45)","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thundersnow","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("severe thunderstorm","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorm  winds","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorm winds","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorm winds/hail","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorms winds","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorm wind","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorm winds 13","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorm windss","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorm 13","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstorms","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("thunderstormw","thunderstorm",st$EVTYPE)
+st$EVTYPE <- sub("tstm wind","thunderstorm",st$EVTYPE)
+#storm
+st$EVTYPE <- sub("winter storm high winds","storm",st$EVTYPE)
+st$EVTYPE <- sub("winter storms","storm",st$EVTYPE)
+st$EVTYPE <- sub("tropical storm gordon","storm",st$EVTYPE)
+st$EVTYPE <- sub("tropical storm","storm",st$EVTYPE)
+st$EVTYPE <- sub("winter storm","storm",st$EVTYPE)
+st$EVTYPE <- sub("storm dean","storm",st$EVTYPE)
+st$EVTYPE <- sub("storm alberto","storm",st$EVTYPE)
+st$EVTYPE <- sub("storm jerry","storm",st$EVTYPE)
+st$EVTYPE <- sub("high wind 48","storm",st$EVTYPE)
+st$EVTYPE <- sub("storm surge/tide","storm surge",st$EVTYPE)
+```
+Continuing with events name adjustment:
+```{r cache=TRUE}
+#wind
+st$EVTYPE <- sub("high winds","wind",st$EVTYPE)
+st$EVTYPE <- sub("high wind and seas","wind",st$EVTYPE)
+st$EVTYPE <- sub("high wind/seas","wind",st$EVTYPE)
+st$EVTYPE <- sub("high winds/cold","wind",st$EVTYPE)
+st$EVTYPE <- sub("winds","wind",st$EVTYPE)
+st$EVTYPE <- sub("strong wind","wind",st$EVTYPE)
+st$EVTYPE <- sub("high wind","wind",st$EVTYPE)
+#wind/snow
+st$EVTYPE <- sub("high wind/heavy snow","wind/snow",st$EVTYPE)
+st$EVTYPE <- sub("high winds/snow","wind/snow",st$EVTYPE)
+st$EVTYPE <- sub("snow/wind","wind/snow",st$EVTYPE)
+st$EVTYPE <- sub("heavy snow and wind","wind/snow",st$EVTYPE)
+#cold
+st$EVTYPE <- sub("cold wave","cold",st$EVTYPE)
+st$EVTYPE <- sub("extreme cold","cold",st$EVTYPE)
+st$EVTYPE <- sub("extended cold","cold",st$EVTYPE)
+st$EVTYPE <- sub("cold weather","cold",st$EVTYPE)
+st$EVTYPE <- sub("record cold","cold",st$EVTYPE)
+st$EVTYPE <- sub("ccold/wind chill","cold",st$EVTYPE)
+st$EVTYPE <- sub("unseasonably cold","cold",st$EVTYPE)
+#ice
+st$EVTYPE <- sub("icy roads","ice",st$EVTYPE)
+st$EVTYPE <- sub("ice roads","ice",st$EVTYPE)
+st$EVTYPE <- sub("ice jam flooding","ice",st$EVTYPE)
+#flood
+st$EVTYPE <- sub("coastal  flood/erosion","flood",st$EVTYPE)
+st$EVTYPE <- sub("coastal  flooding/erosion","flood",st$EVTYPE)
+st$EVTYPE <- sub("coastal flooding/erosion","flood",st$EVTYPE)
+st$EVTYPE <- sub("coastal flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("rain and flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("flash flooding/flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("flash flood/flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("erosion/cstl flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("coastal surge","flood",st$EVTYPE)
+st$EVTYPE <- sub("river and stream flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("major flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("flood/flash flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("river flooding","flood",st$EVTYPE)
+st$EVTYPE <- sub("river flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("flash flooding","flood",st$EVTYPE)
+st$EVTYPE <- sub("flood/flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("flash flood/","flood",st$EVTYPE)
+st$EVTYPE <- sub("flash flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("flood/flash","flood",st$EVTYPE)
+st$EVTYPE <- sub("urban/sml stream fld","flood",st$EVTYPE)
+st$EVTYPE <- sub("urban flood","flood",st$EVTYPE)
+st$EVTYPE <- sub("heavy rains/flooding","flood",st$EVTYPE)
+st$EVTYPE <- sub("heavy rain/flooding","flood",st$EVTYPE)
+st$EVTYPE <- sub("snowmelt flooding","flood",st$EVTYPE)
+st$EVTYPE <- sub("flood & heavy rain","flood",st$EVTYPE)
+st$EVTYPE <- sub("flooding","flood",st$EVTYPE)
+st$EVTYPE <- sub("floods","flood",st$EVTYPE)
+#winter
+st$EVTYPE <- sub("winter weather mix","winter",st$EVTYPE)
+st$EVTYPE <- sub("wintry mix","winter",st$EVTYPE)
+st$EVTYPE <- sub("winter weather","winter",st$EVTYPE)
+st$EVTYPE <- sub("winter weather/mix","winter",st$EVTYPE)
+st$EVTYPE <- sub("winter/mix","winter",st$EVTYPE)
+#tornado
+st$EVTYPE <- sub("tornado f2","tornado",st$EVTYPE)
+st$EVTYPE <- sub("tornadoes, tstm wind, hail","tornado",st$EVTYPE)
+st$EVTYPE <- sub("tornado f3","tornado",st$EVTYPE)
+st$EVTYPE <- sub("tornado f1","tornado",st$EVTYPE)
+#rip current
+st$EVTYPE <- sub("rip currents/heavy surf","rip current",st$EVTYPE)
+st$EVTYPE <- sub("rip currents","rip current",st$EVTYPE)
+#rain
+st$EVTYPE <- sub("heavy rains","rain",st$EVTYPE)
+st$EVTYPE <- sub("excessive rainfall","rain",st$EVTYPE)
+st$EVTYPE <- sub("freezing rain","rain",st$EVTYPE)
+st$EVTYPE <- sub("heavy rain","rain",st$EVTYPE)
+st$EVTYPE <- sub("rain/severe weather","rain",st$EVTYPE)
+st$EVTYPE <- sub("freezing drizzle","rain",st$EVTYPE)
+#snow
+st$EVTYPE <- sub("heavy snow","snow",st$EVTYPE)
+st$EVTYPE <- sub("light snow","snow",st$EVTYPE)
+st$EVTYPE <- sub("snow squall","snow",st$EVTYPE)
+st$EVTYPE <- sub("record snow","snow",st$EVTYPE)
+st$EVTYPE <- sub("excessive snow","snow",st$EVTYPE)
+st$EVTYPE <- sub("snow/snow","snow",st$EVTYPE)
+#wildfire
+st$EVTYPE <- sub("wild/forest fire","wildfire",st$EVTYPE)
+st$EVTYPE <- sub("wild fires","wildfire",st$EVTYPE)
+#frost
+st$EVTYPE <- sub("hard freeze","frost",st$EVTYPE)
+st$EVTYPE <- sub("damaging freeze","frost",st$EVTYPE)
+st$EVTYPE <- sub("frost/freeze","frost",st$EVTYPE)
+st$EVTYPE <- sub("agricultural freeze","frost",st$EVTYPE)
+st$EVTYPE <- sub("early frost","frost",st$EVTYPE)
+st$EVTYPE <- sub("frost.freeze","frost",st$EVTYPE)
+st$EVTYPE <- sub("freeze","frost",st$EVTYPE)
+#hail
+st$EVTYPE <- sub("small hail","hail",st$EVTYPE)
+```
+Processing the damage data, converting all entries to numerics (since they symbolise are exponents):
+```{r cache=TRUE}
 
 st$CROPDMGEXP[st$CROPDMGEXP== ""] <- "0"
 st$PROPDMGEXP[st$PROPDMGEXP==""] <- "0"
@@ -51,32 +209,75 @@ st$CROPDMGEXP[st$CROPDMGEXP=="B"] <- "9"
 st$PROPDMGEXP[st$PROPDMGEXP=="B"] <- "9"
 
 st$PROPDMGEXP[st$PROPDMGEXP=="?"] <- "0"
+st$PROPDMGEXP[st$PROPDMGEXP=="+"] <- "0"
+st$PROPDMGEXP[st$PROPDMGEXP=="-"] <- "0"
 ```
-Deleting the few rows with nonsensical exponent values so as not to use them in the analysis:
+We end up with the new more tidy exponential terms which we then use to create one new collumn with the actual total amount in millions of USD:
+```{r cache=TRUE}
+st$USD <- apply(st,1, function(row) 0.000001*(as.integer(row[6])*10^(as.integer(row[7])) + as.integer(row[4])*10^(as.integer(row[5]))))
+
+st$PROPDMGEXP <- NULL
+st$CROPDMGEXP <- NULL
+st$PROPDMG <- NULL
+st$CROPDMG <- NULL
+```
+Processing the fatalities and injuries data:
+```{r cache=FALSE}
+st$FATALITIES <- as.integer(st$FATALITIES)
+st$INJURIES <- as.integer(st$INJURIES)
+```
+
+Selecting the data with the most fatalities and injuries, disregarding the low-casualty/injury ones:
+
+```{r cache=TRUE}
+st_health <- st[!(st$INJURIES < 10 & st$FATALITIES < 10),]
+```
+Analysing events with health impact:
+```{r cache=TRUE}
+st_health$EVTYPE <- as.factor(st_health$EVTYPE)
+
+total_casualties <- aggregate(st_health$FATALITIES ~ st_health$EVTYPE, FUN=sum)
+reorder_casualties <- total_casualties[order(-total_casualties[,2]),]
+names(reorder_casualties) <- c("Event Type", "Number of Casualties")
+
+total_injured <- aggregate(st_health$INJURIES ~ st_health$EVTYPE, FUN=sum)
+
+reorder_injured <- total_injured[order(-total_injured[,2]),]
+names(reorder_injured) <- c("Event Type", "Number of Injuries")
+```
+Processing the data for economic impact in a similar manner:
+```{r cache=TRUE}
+st_economy <- st[!(st$USD < 0.08),]
+```
+Analysing events with economic impact:
 ```{r}
-st$REFNUM[st$PROPDMGEXP=="-"]
-rows <- as.integer(st$REFNUM[st$PROPDMGEXP=="-"])
-rows <- c(rows, as.integer(st$REFNUM[st$PROPDMGEXP=="+"]))
+st_economy$EVTYPE <- tolower(st_economy$EVTYPE)
+st_economy$EVTYPE <- as.factor(st_economy$EVTYPE)
 
-summary(st)
-st <- st[-rows,]
-
-st$REFNUM[st$PROPDMGEXP=="-"]
-summary(st)
-st$EVTYPE <- as.factor(st$EVTYPE)
-st$PROPDMGEXP <- as.factor(st$PROPDMGEXP)
-st$CROPDMGEXP <- as.factor(st$CROPDMGEXP)
-
-levels(st$PROPDMGEXP)
-levels(st$CROPDMGEXP)
-
-st[st$PROPDMGEXP == "-",]
-st[st$PROPDMGEXP == "+",]
-
+total_economy <- aggregate(st_economy$USD ~ st_economy$EVTYPE, FUN=sum)
+reorder_economy <- total_economy[order(-total_economy[,2]),]
+names(reorder_economy) <- c("Event Type", "Total Cost in millions USD")
 ```
-
-
-
 ## Results
 
-## Conclusions
+Top-5 most harmful weather events with respect to population health: Injuries
+```{r results = 'asis'}
+kable(reorder_injured[1:5,], format="markdown", row.names=F)
+
+barplot(as.vector(reorder_injured[1:5,2]), names.arg=as.vector(reorder_injured[1:5,1]), main="The five weather events that cause the most injuries")
+```
+Top-5 most harmful weather events with respect to population health: Casualties
+```{r results = 'asis'}
+kable(reorder_casualties[1:5,], format="markdown", row.names=F)
+
+barplot(as.vector(reorder_casualties[1:5,2]), names.arg=as.vector(reorder_casualties[1:5,1]), main="The five most fatal weather events in the US")
+```
+Top-5 weather events with the greatest economic consequences:
+```{r results = 'asis'}
+kable(reorder_economy[1:5,], format="markdown", row.names=F)
+
+barplot(as.vector(reorder_economy[1:5,2]), names.arg=as.vector(reorder_economy[1:5,1]), main="The five most costly weather events in the US in million USD")
+```
+## Recommendations to the US Government
+
+Divest from fossil fluels ASAP. You are welcome.
